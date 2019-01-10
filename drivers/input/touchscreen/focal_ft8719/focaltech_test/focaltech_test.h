@@ -391,8 +391,8 @@ int get_channel_num(void);
 
 #define fts_free(p) do {\
     if (p) {\
-		fts_free_proc(p);\
-		p = NULL;\
+        fts_free_proc(p);\
+        p = NULL;\
     }\
 } while(0)
 
@@ -413,19 +413,19 @@ int get_channel_num(void);
 
 #define FTS_TEST_SAVE_INFO(fmt, args...)  do { \
     if (test_data.testresult) { \
-		test_data.testresult_len += snprintf(\
-		test_data.testresult + test_data.testresult_len, \
-		BUFF_LEN_TESTRESULT_BUFFER, \
-		fmt, ##args);\
+        test_data.testresult_len += snprintf( \
+        test_data.testresult + test_data.testresult_len, \
+        BUFF_LEN_TESTRESULT_BUFFER, \
+        fmt, ##args);\
     }; \
 } while (0)
 
 #define FTS_TEST_SAVE_ERR(fmt, args...)  do { \
     if (test_data.testresult) { \
-		test_data.testresult_len += snprintf(\
-		test_data.testresult + test_data.testresult_len, \
-		BUFF_LEN_TESTRESULT_BUFFER, \
-		fmt, ##args);\
+        test_data.testresult_len += snprintf( \
+        test_data.testresult + test_data.testresult_len, \
+        BUFF_LEN_TESTRESULT_BUFFER, \
+        fmt, ##args);\
     } \
     printk(KERN_ERR "[FTS][TEST][Error]%s. line: %d.  "fmt"\n",  __FUNCTION__, __LINE__, ##args);\
 } while (0)

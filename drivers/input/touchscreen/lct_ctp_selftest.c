@@ -20,7 +20,7 @@
 
 
 
-typedef  int (*CTP_SELFTEST_FUNC)(void);
+#include "lct_ctp_selftest.h"
 
 static CTP_SELFTEST_FUNC PSelftest_func;
 
@@ -48,19 +48,19 @@ static ssize_t ctp_selftest_proc_write(struct file *file, const char __user *buf
 
 	if (copy_from_user(tmp_data, buf, size))
     {
-		printk("copy_from_user() fail.\n");
-		return -EFAULT;
+        printk("copy_from_user() fail.\n");
+        return -EFAULT;
     }
 
-		if ((strncmp(tmp_data, "mmi", strlen("mmi")) == 0) && (is_in_self_test == 0))
-		{
-			printk("ctp_selftest_proc_write start \n");
-			strcpy(ft_ctp_selftest_status, "Testing");
-			is_in_self_test = 1;
-			retry_count = CTP_FELF_TEST_RETROY_COUNT;
-			queue_work(ctp_selftest_workqueue, &ctp_selftest_work);
+	if ((strncmp(tmp_data, "i2c", strlen("i2c")) == 0) && (is_in_self_test == 0))
+	{
+		printk("ctp_selftest_proc_write start \n");
+		strcpy(ft_ctp_selftest_status, "Testing");
+		is_in_self_test = 1;
+		retry_count = CTP_FELF_TEST_RETROY_COUNT;
+		queue_work(ctp_selftest_workqueue, &ctp_selftest_work);
 
-		}
+	}
 	return size;
 }
 
@@ -95,7 +95,7 @@ static int ctp_chip_self_test(void)
 static void ctp_selftest_workqueue_func(struct work_struct *work)
 {
 	int val = 0x00;
-	printk("ctp_selftest_workqueue_func is_in_self_test=%d,retry_count=%d\n", is_in_self_test, retry_count);
+	printk("ctp_selftest_workqueue_func is_in_self_test=%d, retry_count=%d\n", is_in_self_test, retry_count);
 	val = ctp_chip_self_test();
 	if (val == 2)
 	{
@@ -119,12 +119,11 @@ static void ctp_selftest_workqueue_func(struct work_struct *work)
 		}
 
 	}
-		else
-		{
-			strcpy(ft_ctp_selftest_status, "0\n");
-			is_in_self_test = 0;
-			printk("ctp_selftest_workqueue_func self test invalid\n");
-		}
+	else {
+		strcpy(ft_ctp_selftest_status, "0\n");
+		is_in_self_test = 0;
+		printk("ctp_selftest_workqueue_func self test invalid\n");
+	}
 
 }
 
@@ -132,14 +131,13 @@ int lct_get_ctp_selttest_status(void)
 {
 	return is_in_self_test;
 }
-EXPORT_SYMBOL(lct_get_ctp_selttest_status);
 
 void lct_ctp_selftest_int(CTP_SELFTEST_FUNC PTestfunc)
 {
 	printk("%s\n", __func__);
 	PSelftest_func = PTestfunc;
+
 }
-EXPORT_SYMBOL(lct_ctp_selftest_int);
 
 static const struct file_operations ctp_selftest_proc_fops = {
 	.read		= ctp_selftest_proc_read,
@@ -153,7 +151,7 @@ static int  ctp_selftest_init(void)
 	INIT_WORK(&ctp_selftest_work, ctp_selftest_workqueue_func);
 
 #if 1
-	g_ctp_selftest_proc = proc_create_data(CTP_SELF_TEST_PROC_FILE, 0666, NULL, &ctp_selftest_proc_fops, NULL);
+	g_ctp_selftest_proc = proc_create_data(CTP_SELF_TEST_PROC_FILE, 0660, NULL, &ctp_selftest_proc_fops, NULL);
 	if (IS_ERR_OR_NULL(g_ctp_selftest_proc))
 	{
 		printk("create_proc_entry g_ctp_selftest_proc failed\n");

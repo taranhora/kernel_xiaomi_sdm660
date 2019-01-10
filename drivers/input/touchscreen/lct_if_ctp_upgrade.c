@@ -24,7 +24,7 @@
 
 
 #define CTP_IF_UPGRADE_PROC_FILE "ctp_if_upgrade"
-static struct proc_dir_entry *g_ctp_if_upgrade_proc;
+static struct proc_dir_entry *g_ctp_if_upgrade_proc = NULL;
 
 static struct work_struct ctp_if_upgrade_work;
 static struct workqueue_struct *ctp_if_upgrade_workqueue;
@@ -48,7 +48,7 @@ static CTP_READ_VERSION PIFCtpreadOldverFunc;
 
  static int ctp_if_upgrade_start(void)
  {
-	if (PIFCtpupdateFunc == NULL)
+ 	if (PIFCtpupdateFunc == NULL)
 	{
 		strcpy(ctp_if_upgrade_status, "Unsupport");
 	}
@@ -57,7 +57,7 @@ static CTP_READ_VERSION PIFCtpreadOldverFunc;
 		printk("ctp_upgrade_from_engineermode call pointer func to upgrade \n");
 		PIFCtpupdateFunc();
 	}
-	return 0;
+ 	return 0;
  }
 
 static void ctp_if_upgrade_workqueue_func(struct work_struct *work)
@@ -72,8 +72,8 @@ static ssize_t ctp_if_upgrade_proc_write(struct file *file, const char __user *b
 
 	if (copy_from_user(tmp_data, buf, size))
     {
-		printk("copy_from_user() fail.\n");
-		return -EFAULT;
+        printk("copy_from_user() fail.\n");
+        return -EFAULT;
     }
 
 	if (strncmp(tmp_data, "tp_update_13817059502", strlen("tp_update_13817059502")) == 0)

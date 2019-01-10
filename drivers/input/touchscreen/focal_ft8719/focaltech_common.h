@@ -100,9 +100,9 @@
 #define FTS_SYSFS_ECHO_OFF(buf)     (buf[0] == '0')
 
 #define kfree_safe(pbuf) do {\
-	if (pbuf) {\
-		kfree(pbuf);\
-		pbuf = NULL;\
+    if (pbuf) {\
+        kfree(pbuf);\
+        pbuf = NULL;\
     }\
 } while(0)
 

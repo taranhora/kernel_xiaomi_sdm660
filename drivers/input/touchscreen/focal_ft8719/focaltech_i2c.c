@@ -72,12 +72,12 @@ static DEFINE_MUTEX(i2c_rw_access);
 ***********************************************************************/
 int fts_i2c_read(struct i2c_client *client, char *writebuf, int writelen, char *readbuf, int readlen)
 {
-    int ret = 0;
-    int i = 0;
+	int ret = 0;
+	int i = 0;
 
-    mutex_lock(&i2c_rw_access);
+	mutex_lock(&i2c_rw_access);
 
-    if (readlen > 0) {
+	if (readlen > 0) {
 		if (writelen > 0) {
 			struct i2c_msg msgs[] = {
 				{
@@ -117,10 +117,10 @@ int fts_i2c_read(struct i2c_client *client, char *writebuf, int writelen, char *
 					break;
 			}
 		}
-    }
+	}
 
-    mutex_unlock(&i2c_rw_access);
-    return ret;
+	mutex_unlock(&i2c_rw_access);
+	return ret;
 }
 
 /************************************************************************
@@ -132,11 +132,11 @@ int fts_i2c_read(struct i2c_client *client, char *writebuf, int writelen, char *
 ***********************************************************************/
 int fts_i2c_write(struct i2c_client *client, char *writebuf, int writelen)
 {
-    int ret = 0;
-    int i = 0;
+	int ret = 0;
+	int i = 0;
 
-    mutex_lock(&i2c_rw_access);
-    if (writelen > 0) {
+	mutex_lock(&i2c_rw_access);
+	if (writelen > 0) {
 		struct i2c_msg msgs[] = {
 			{
 				.addr = client->addr,
@@ -152,10 +152,10 @@ int fts_i2c_write(struct i2c_client *client, char *writebuf, int writelen)
 			} else
 				break;
 		}
-    }
-    mutex_unlock(&i2c_rw_access);
+	}
+	mutex_unlock(&i2c_rw_access);
 
-    return ret;
+	return ret;
 }
 
 /************************************************************************
@@ -167,11 +167,11 @@ int fts_i2c_write(struct i2c_client *client, char *writebuf, int writelen)
 ***********************************************************************/
 int fts_i2c_write_reg(struct i2c_client *client, u8 regaddr, u8 regvalue)
 {
-    u8 buf[2] = {0};
+	u8 buf[2] = {0};
 
-    buf[0] = regaddr;
-    buf[1] = regvalue;
-    return fts_i2c_write(client, buf, sizeof(buf));
+	buf[0] = regaddr;
+	buf[1] = regvalue;
+	return fts_i2c_write(client, buf, sizeof(buf));
 }
 
 /************************************************************************
@@ -183,7 +183,7 @@ int fts_i2c_write_reg(struct i2c_client *client, u8 regaddr, u8 regvalue)
 ***********************************************************************/
 int fts_i2c_read_reg(struct i2c_client *client, u8 regaddr, u8 *regvalue)
 {
-    return fts_i2c_read(client, &regaddr, 1, regvalue, 1);
+	return fts_i2c_read(client, &regaddr, 1, regvalue, 1);
 }
 
 /************************************************************************
@@ -191,15 +191,15 @@ int fts_i2c_read_reg(struct i2c_client *client, u8 regaddr, u8 *regvalue)
 ***********************************************************************/
 void fts_i2c_hid2std(struct i2c_client *client)
 {
-    int ret = 0;
-    u8 buf[3] = {0xeb, 0xaa, 0x09};
+	int ret = 0;
+	u8 buf[3] = {0xeb, 0xaa, 0x09};
 
-    ret = fts_i2c_write(client, buf, 3);
-    if (ret < 0)
+	ret = fts_i2c_write(client, buf, 3);
+	if (ret < 0)
 		FTS_ERROR("hid2std cmd write fail");
-    else {
+	else {
 		msleep(10);
-        buf[0] = buf[1] = buf[2] = 0;
+		buf[0] = buf[1] = buf[2] = 0;
 		ret = fts_i2c_read(client, NULL, 0, buf, 3);
 		if (ret < 0)
 			FTS_ERROR("hid2std cmd read fail");
@@ -208,7 +208,7 @@ void fts_i2c_hid2std(struct i2c_client *client)
 		} else {
 			FTS_ERROR("hidi2c change to stdi2c fail");
 		}
-    }
+	}
 }
 
 /************************************************************************
@@ -220,10 +220,10 @@ void fts_i2c_hid2std(struct i2c_client *client)
 ***********************************************************************/
 int fts_i2c_init(void)
 {
-    FTS_FUNC_ENTER();
+	FTS_FUNC_ENTER();
 
-    FTS_FUNC_EXIT();
-    return 0;
+	FTS_FUNC_EXIT();
+	return 0;
 }
 /************************************************************************
 * Name: fts_i2c_exit
@@ -234,9 +234,9 @@ int fts_i2c_init(void)
 ***********************************************************************/
 int fts_i2c_exit(void)
 {
-    FTS_FUNC_ENTER();
+	FTS_FUNC_ENTER();
 
-    FTS_FUNC_EXIT();
-    return 0;
+	FTS_FUNC_EXIT();
+	return 0;
 }
 

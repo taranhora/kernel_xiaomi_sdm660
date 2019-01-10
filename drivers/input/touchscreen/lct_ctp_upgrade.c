@@ -42,7 +42,7 @@ static CTP_READ_VERSION PCtpreadverFunc;
 
  static int ctp_upgrade_from_engineermode(void)
  {
-	if (PCtpupdateFunc == NULL)
+ 	if (PCtpupdateFunc == NULL)
 	{
 		strcpy(ft_ctp_upgrade_status, "Unsupport");
 	}
@@ -51,7 +51,7 @@ static CTP_READ_VERSION PCtpreadverFunc;
 		printk("ctp_upgrade_from_engineermode call pointer func to upgrade \n");
 		PCtpupdateFunc();
 	}
-	return 0;
+ 	return 0;
  }
 
 static void ctp_upgrade_workqueue_func(struct work_struct *work)
@@ -66,8 +66,8 @@ static ssize_t ctp_upgrade_proc_write(struct file *file, const char __user *buf,
 
 	if (copy_from_user(tmp_data, buf, size))
     {
-		printk("copy_from_user() fail.\n");
-		return -EFAULT;
+        printk("copy_from_user() fail.\n");
+        return -EFAULT;
     }
 
 	if (strncmp(tmp_data, "tp_update_13817059502", strlen("tp_update_13817059502")) == 0)

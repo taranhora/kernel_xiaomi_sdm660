@@ -87,9 +87,9 @@ extern const uint16_t gesture_key_array[];
 #endif
 #define BOOT_UPDATE_FIRMWARE 1
 /* add by yangjiangzhu compatible to shenchao and tianma TP FW  2018/3/16  start */
-#define BOOT_UPDATE_FIRMWARE_NAME_TIANMA "novatek/tianma_nt36672a_miui_e7t.bin"
-#define BOOT_UPDATE_FIRMWARE_NAME_TIANMA_GG5 "novatek/tianma_nt36672a_miui_e7t.bin"
-#define BOOT_UPDATE_FIRMWARE_NAME_SHENCHAO "novatek/shenchao_nt36672a_miui_e7t.bin"
+#define BOOT_UPDATE_FIRMWARE_NAME_TIANMA "novatek/tianma_nt36672a_miui_tulip.bin"
+#define BOOT_UPDATE_FIRMWARE_NAME_TIANMA_GG5 "novatek/tianma_nt36672a_miui_tulip.bin"
+#define BOOT_UPDATE_FIRMWARE_NAME_SHENCHAO "novatek/shenchao_nt36672a_miui_tulip.bin"
 /* add by yangjiangzhu compatible to shenchao and tianma TP FW  2018/3/16  end */
 
 

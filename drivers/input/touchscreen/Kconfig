@@ -12,8 +12,6 @@ menuconfig INPUT_TOUCHSCREEN
 if INPUT_TOUCHSCREEN
 
 #source "drivers/input/touchscreen/synaptics_dsx/Kconfig"
-source "drivers/input/touchscreen/nvt_touch_a/Kconfig"
-source "drivers/input/touchscreen/focal_ft8719/Kconfig"
 
 config OF_TOUCHSCREEN
 	def_tristate INPUT
@@ -1150,6 +1148,7 @@ config TOUCHSCREEN_NVT_A
 
          To compile this driver as a module, choose M here: the
          module will be called nvt.
+source "drivers/input/touchscreen/nvt_touch_a/Kconfig"
 
 config TOUCHSCREEN_ROHM_BU21023
 	tristate "ROHM BU21023/24 Dual touch support resistive touchscreens"
@@ -1240,11 +1239,12 @@ config TOUCHSCREEN_ST
 config TOUCHSCREEN_FOCAL_FT8719
         bool "Focaltech Touchscreen"
 		depends on I2C
-		default y
+		default n
 		help
 		  Say Y here if you have Focaltech touch panel.
-		  If unsure, say N.
-
+		  If unsure, say N.		  
+source "drivers/input/touchscreen/focal_ft8719/Kconfig"
+	  
 source "drivers/input/touchscreen/st/Kconfig"
 
 endif

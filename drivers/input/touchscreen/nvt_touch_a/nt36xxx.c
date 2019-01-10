@@ -1250,22 +1250,22 @@ static int32_t nvt_ts_probe(struct i2c_client *client, const struct i2c_device_i
     ts->vcc_i2c = regulator_get(&client->dev, "vcc_i2c-supply");
     if (IS_ERR(ts->vcc_i2c))
     {
-		ret = PTR_ERR(ts->vcc_i2c);
-		NVT_ERR("Regulator get failed vcc_i2c");
+        ret = PTR_ERR(ts->vcc_i2c);
+        NVT_ERR("Regulator get failed vcc_i2c");
     }
 
     if (regulator_count_voltages(ts->vcc_i2c) > 0)
     {
-		ret = regulator_set_voltage(ts->vcc_i2c, 1800000, 1800000);
-		if (ret)
-		{
-			NVT_ERR("Regulator set_vtg failed vcc_i2c ");
-		}
+        ret = regulator_set_voltage(ts->vcc_i2c, 1800000, 1800000);
+        if (ret)
+        {
+            NVT_ERR("Regulator set_vtg failed vcc_i2c ");
+        }
     }
     ret = regulator_enable(ts->vcc_i2c);
     if (ret)
     {
-		NVT_ERR("Regulator vcc_i2c enable failed");
+        NVT_ERR("Regulator vcc_i2c enable failed");
     }
 
 
