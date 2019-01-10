@@ -115,7 +115,7 @@ static struct step_chg_cfg step_chg_config = {
  * range data must be in increasing ranges and shouldn't overlap.
  * Gaps are okay
  */
-#if defined(CONFIG_KERNEL_CUSTOM_E7T)
+#if defined(CONFIG_KERNEL_CUSTOM_TULIP)
 static struct jeita_fcc_cfg jeita_fcc_config = {
 	.psy_prop	= POWER_SUPPLY_PROP_TEMP,
 	.prop_name	= "BATT_TEMP",
@@ -136,8 +136,8 @@ static struct jeita_fv_cfg jeita_fv_config = {
 	.fv_cfg		= {
 		/* TEMP_LOW	TEMP_HIGH	FV */
 		{0,		150,		4400000},
-		{151,	450,		4400000},
-		{451,	600,		4100000},
+		{151,		450,		4400000},
+		{451,		600,		4100000},
 	},
 };
 
@@ -335,7 +335,10 @@ static int handle_jeita(struct step_chg_info *chip)
 	if (!chip->fv_votable)
 		goto update_time;
 
-	vote(chip->fv_votable, JEITA_VOTER, true, fv_uv);
+	rc = vote(chip->fv_votable, JEITA_VOTER, true, fv_uv);
+	if (rc < 0)
+		pr_err("handle_jeita sw jeita set fv vote err\n");
+
 
 	pr_err("%s = %d FCC = %duA FV = %duV\n",
 		step_chg_config.prop_name, pval.intval, fcc_ua, fv_uv);
@@ -357,11 +360,21 @@ static void status_change_work(struct work_struct *work)
 	int reschedule_us;
 	int reschedule_jeita_work_us = 0;
 	int reschedule_step_work_us = 0;
+	union power_supply_propval pval = {0, };
 
-	if (!is_batt_available(chip))
+	if (!is_batt_available(chip)) {
+		__pm_relax(chip->step_chg_ws);
 		return;
+	}
 
-	/* skip elapsed_us debounce for handling battery temperature */
+	/* skip jeita and step if not charging */
+	rc = power_supply_get_property(chip->batt_psy,
+		POWER_SUPPLY_PROP_STATUS, &pval);
+	if (pval.intval != POWER_SUPPLY_STATUS_CHARGING) {
+		__pm_relax(chip->step_chg_ws);
+		return;
+	}
+
 	rc = handle_jeita(chip);
 	if (rc > 0)
 		reschedule_jeita_work_us = rc;
