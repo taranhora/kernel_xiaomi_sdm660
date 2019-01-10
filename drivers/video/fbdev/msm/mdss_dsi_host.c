@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2017, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -1240,7 +1240,7 @@ int mdss_dsi_reg_status_check(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
 			ret = ctrl_pdata->check_read_status(sctrl_pdata);
 	} else {
 		pr_err("%s: Read status register returned error\n", __func__);
-		if ((strstr(g_lcd_id,"nt36672") != NULL) || (strstr(g_lcd_id,"nt36672a") != NULL) || (strstr(g_lcd_id,"td4320") != NULL)) {
+		if (strstr(g_lcd_id, "nt36672") != NULL) {
 			ESD_TE_status = true;
 		}
 	}
@@ -2269,7 +2269,7 @@ static int mdss_dsi_cmd_dma_tx(struct mdss_dsi_ctrl_pdata *ctrl,
 			/* clear CMD DMA and BTA_DONE isr only */
 			reg_val |= (DSI_INTR_CMD_DMA_DONE | DSI_INTR_BTA_DONE);
 			MIPI_OUTP(ctrl->ctrl_base + 0x0110, reg_val);
-			mdss_dsi_disable_irq_nosync(ctrl, DSI_CMD_TERM);
+			mdss_dsi_disable_irq(ctrl, DSI_CMD_TERM);
 			complete(&ctrl->dma_comp);
 
 			pr_warn("%s: dma tx done but irq not triggered\n",

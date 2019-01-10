@@ -58,7 +58,6 @@
 #include "mdss_debug.h"
 #include "mdss_smmu.h"
 #include "mdss_mdp.h"
-#include "dsi_access.h"
 
 #ifdef CONFIG_FB_MSM_TRIPLE_BUFFER
 #define MDSS_FB_NUM 3
@@ -127,6 +126,8 @@ static int mdss_fb_send_panel_event(struct msm_fb_data_type *mfd,
 static void mdss_fb_set_mdp_sync_pt_threshold(struct msm_fb_data_type *mfd,
 		int type);
 
+extern int mdss_dsi_read_reg(struct mdss_dsi_ctrl_pdata *ctrl, char cmd0, int *val0, int *val1);
+
 int ce_state, cabc_state, srgb_state, gamma_state;
 bool ce_resume, cabc_resume, srgb_resume, gamma_resume;
 bool first_set_bl = false;
@@ -141,6 +142,7 @@ static inline uint64_t __user to_user_u64(void *ptr)
 {
 	return (uint64_t)((uintptr_t)ptr);
 }
+
 #define WAIT_RESUME_TIMEOUT 200
 static struct fb_info *prim_fbi;
 static struct delayed_work prim_panel_work;
@@ -959,16 +961,15 @@ int mdss_first_set_feature(struct mdss_panel_data *pdata, int first_ce_state, in
 {
 	struct mdss_dsi_ctrl_pdata *ctrl = NULL;
 
-		ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
+	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
 	if (!ctrl) {
 		pr_err("%s, not available\n", __func__);
 		return -EPERM;
 	}
 
-	if ((first_ce_state != -1) || (first_cabc_state != -1) || (first_srgb_state != -1) || (first_gamma_state != -1))
-		printk("%s, first_ce_state: %d, first_cabc_state: %d, first_srgb_state=%d, first_gamma_state=%d\n", __func__,
-			first_ce_state, first_cabc_state, first_srgb_state, first_gamma_state);
+	printk("%s, first_ce_state: %d, first_cabc_state: %d, first_srgb_state=%d, first_gamma_state=%d\n", __func__,
+	first_ce_state, first_cabc_state, first_srgb_state, first_gamma_state);
 
 	switch(first_ce_state) {
 		case 0x1:
@@ -1018,6 +1019,7 @@ int mdss_first_set_feature(struct mdss_panel_data *pdata, int first_ce_state, in
 			break;
 
 	}
+#if defined(CONFIG_KERNEL_CUSTOM_TULIP)
 
 	switch(first_gamma_state) {
 		case 0x1:
@@ -1031,6 +1033,7 @@ int mdss_first_set_feature(struct mdss_panel_data *pdata, int first_ce_state, in
 			break;
 
 	}
+#endif
 	return 0;
 
 }
@@ -1058,7 +1061,7 @@ static ssize_t mdss_fb_set_ce(struct device *dev, struct device_attribute *attr,
 		pr_err("no panel connected!\n");
 		return len;
 	}
-		ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
+	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
 	if (!ctrl) {
 		pr_info("not available\n");
@@ -1083,7 +1086,7 @@ static ssize_t mdss_fb_set_ce(struct device *dev, struct device_attribute *attr,
 		return len;
 	}
 
-	if (!first_set_bl){
+ 	if (!first_set_bl){
 		first_ce_state = param;
 		pr_err("%s, wait first_set_bl\n", __func__);
 		return len;
@@ -1129,7 +1132,7 @@ static ssize_t mdss_fb_set_cabc(struct device *dev, struct device_attribute *att
 	int param = 0;
 
 
-    rc = kstrtoint(buf, 10, &param);
+	rc = kstrtoint(buf, 10, &param);
 	if (rc) {
 		pr_err("kstrtoint failed. rc=%d\n", rc);
 		return rc;
@@ -1140,7 +1143,7 @@ static ssize_t mdss_fb_set_cabc(struct device *dev, struct device_attribute *att
 		pr_err("no panel connected!\n");
 		return len;
 	}
-		ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
+	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
 	if (!ctrl) {
 		pr_info("not available\n");
@@ -1165,7 +1168,7 @@ static ssize_t mdss_fb_set_cabc(struct device *dev, struct device_attribute *att
 		return len;
 	}
 
-	if (!first_set_bl){
+ 	if (!first_set_bl){
 		first_cabc_state = param;
 		pr_err("%s, wait first_set_bl\n", __func__);
 		return len;
@@ -1211,7 +1214,7 @@ static ssize_t mdss_fb_set_srgb(struct device *dev, struct device_attribute *att
 	int param = 0;
 
 
-    rc = kstrtoint(buf, 10, &param);
+	rc = kstrtoint(buf, 10, &param);
 	if (rc) {
 		pr_err("kstrtoint failed. rc=%d\n", rc);
 		return rc;
@@ -1222,7 +1225,7 @@ static ssize_t mdss_fb_set_srgb(struct device *dev, struct device_attribute *att
 		pr_err("no panel connected!\n");
 		return len;
 	}
-		ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
+	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
 	if (!ctrl) {
 		pr_info("not available\n");
@@ -1247,7 +1250,7 @@ static ssize_t mdss_fb_set_srgb(struct device *dev, struct device_attribute *att
 		return len;
 	}
 
-	if (!first_set_bl){
+ 	if (!first_set_bl){
 		first_srgb_state = param;
 		pr_err("%s, wait first_set_bl\n", __func__);
 		return len;
@@ -1293,7 +1296,7 @@ static ssize_t mdss_fb_set_gamma(struct device *dev, struct device_attribute *at
 	int param = 0;
 
 
-    rc = kstrtoint(buf, 10, &param);
+	rc = kstrtoint(buf, 10, &param);
 	if (rc) {
 		pr_err("kstrtoint failed. rc=%d\n", rc);
 		return rc;
@@ -1304,7 +1307,7 @@ static ssize_t mdss_fb_set_gamma(struct device *dev, struct device_attribute *at
 		pr_err("no panel connected!\n");
 		return len;
 	}
-		ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
+	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
 	if (!ctrl) {
 		pr_info("not available\n");
@@ -1343,13 +1346,44 @@ static ssize_t mdss_fb_set_gamma(struct device *dev, struct device_attribute *at
 		return len;
 	}
 
-    mdss_dsi_set_gamma(ctrl, param);
+	mdss_dsi_set_gamma(ctrl, param);
 
 	printk("guorui ##### gamma over ###\n");
 	return len;
 
 }
 
+
+static ssize_t mdss_fb_get_whitepoint(struct device *dev,
+				struct device_attribute *attr, char *buf)
+{
+	struct fb_info *fbi = dev_get_drvdata(dev);
+	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)fbi->par;
+	struct mdss_panel_data *pdata;
+	struct mdss_dsi_ctrl_pdata *ctrl = NULL;
+	int val0 = 0;
+	int val1 = 0;
+	ssize_t ret = 0;
+
+	pdata = dev_get_platdata(&mfd->pdev->dev);
+	if (!pdata) {
+		pr_err("no panel connected!\n");
+		return -EINVAL;;
+	}
+	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
+				panel_data);
+	if (!ctrl) {
+		pr_err("not available\n");
+		return -EINVAL;;
+	}
+
+	mdss_dsi_read_reg(ctrl, 0xa1,  &val0,  &val1);
+	printk("henty: %x %x \n", val0, val1);
+
+	ret = snprintf(buf, PAGE_SIZE, "val0=%d, val1=%d\n", val0, val1);
+
+	return ret;
+}
 
 
 static DEVICE_ATTR(msm_fb_type, S_IRUGO, mdss_fb_get_type, NULL);
@@ -1377,6 +1411,7 @@ static DEVICE_ATTR(msm_fb_ce, 0644, NULL, mdss_fb_set_ce);
 static DEVICE_ATTR(msm_fb_cabc, 0644, NULL, mdss_fb_set_cabc);
 static DEVICE_ATTR(msm_fb_srgb, 0644, NULL, mdss_fb_set_srgb);
 static DEVICE_ATTR(msm_fb_gamma, 0644, NULL, mdss_fb_set_gamma);
+static DEVICE_ATTR(msm_fb_whitepoint, 0644, mdss_fb_get_whitepoint, NULL);
 
 
 static struct attribute *mdss_fb_attrs[] = {
@@ -1397,6 +1432,7 @@ static struct attribute *mdss_fb_attrs[] = {
 	&dev_attr_msm_fb_cabc.attr,
 	&dev_attr_msm_fb_srgb.attr,
 	&dev_attr_msm_fb_gamma.attr,
+	&dev_attr_msm_fb_whitepoint.attr,
 	NULL,
 };
 
@@ -1404,25 +1440,9 @@ static struct attribute_group mdss_fb_attr_group = {
 	.attrs = mdss_fb_attrs,
 };
 
-#ifdef DSI_ACCESS
-extern struct dsi_access dsi_access;
-#endif
-
 static int mdss_fb_create_sysfs(struct msm_fb_data_type *mfd)
 {
 	int rc;
-
-#ifdef DSI_ACCESS
-	if (mfd->panel.type == MIPI_VIDEO_PANEL ||
-			mfd->panel.type == MIPI_CMD_PANEL) {
-		dsi_access.sysfs_dir = kobject_create_and_add(DSI_ACCESS_DIR,
-				&mfd->fbi->dev->kobj);
-		rc = sysfs_create_group(dsi_access.sysfs_dir,
-				&dsi_access.attr_group);
-		if (rc)
-			pr_err("dsi_access sysfs creation failed, rc=%d\n", rc);
-	}
-#endif
 
 	rc = sysfs_create_group(&mfd->fbi->dev->kobj, &mdss_fb_attr_group);
 	if (rc)
@@ -2486,10 +2506,10 @@ static int mdss_fb_blank_unblank(struct msm_fb_data_type *mfd)
 		}
 		mutex_unlock(&mfd->bl_lock);
 	}
-    ce_resume = false;
-    cabc_resume = false;
-    srgb_resume = false;
-    gamma_resume = false;
+	ce_resume = false;
+	cabc_resume = false;
+	srgb_resume = false;
+	gamma_resume = false;
 error:
 	return ret;
 }
@@ -2596,7 +2616,7 @@ static int mdss_fb_blank(int blank_mode, struct fb_info *info)
 	int ret;
 	struct mdss_panel_data *pdata;
 	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)info->par;
-
+	printk("mdss_fb_blank 111\n");
 	if ((info == prim_fbi) && (blank_mode == FB_BLANK_UNBLANK) &&
 		atomic_read(&prim_panel_is_on)) {
 		atomic_set(&prim_panel_is_on, false);
@@ -2626,7 +2646,7 @@ static int mdss_fb_blank(int blank_mode, struct fb_info *info)
 		ret = 0;
 		goto end;
 	}
-	pr_info("%s: blank_mode: %d\n", __func__, blank_mode);
+	pr_debug("mode: %d\n", blank_mode);
 
 	pdata = dev_get_platdata(&mfd->pdev->dev);
 
@@ -3279,6 +3299,7 @@ static int mdss_fb_register(struct msm_fb_data_type *mfd)
 		INIT_DELAYED_WORK(&prim_panel_work, prim_panel_off_delayed_work);
 		wake_lock_init(&prim_panel_wakelock, WAKE_LOCK_SUSPEND, "prim_panel_wakelock");
 	}
+
 	return 0;
 }
 
@@ -5226,6 +5247,7 @@ static int mdss_fb_atomic_commit_ioctl(struct fb_info *info,
 	input_layer_list = commit.commit_v1.input_layers;
 
 	if (layer_count > MAX_LAYER_COUNT) {
+		pr_err("invalid layer count :%d\n", layer_count);
 		ret = -EINVAL;
 		goto err;
 	} else if (layer_count) {
@@ -5791,7 +5813,7 @@ int mdss_prim_panel_fb_unblank(int timeout)
 {
 	int ret = 0;
 	struct msm_fb_data_type *mfd = NULL;
-		printk("prim_fbi 00\n");
+	printk("prim_fbi 00\n");
 	if (prim_fbi) {
 		printk("prim_fbi 01\n");
 		mfd = (struct msm_fb_data_type *)prim_fbi->par;
